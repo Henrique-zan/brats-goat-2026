@@ -35,8 +35,9 @@ with two components:
 └── results/                 # per-case scores returned by the challenge platform
 ```
 
-All notebooks are provided **as executed**, including their outputs (training logs and
-loss curves), so each reported configuration can be traced back to its actual run.
+All notebooks are provided **as executed**, including their outputs — the full nnU-Net
+training logs, epoch by epoch — so each reported configuration can be traced back to its
+actual run.
 Every experiment uses a distinct nnU-Net `DATASET_ID` and its own isolated
 `nnUNet_raw` / `nnUNet_preprocessed` / `nnUNet_results` directories, so runs never
 overwrite each other.
@@ -45,7 +46,7 @@ overwrite each other.
 
 | Component | Where |
 |---|---|
-| Tumor-aware deformable augmentation (paper Sec. 3.3) | `docker/nnunet_trainer/nnUNetTrainer_deformAug_agressive.py` |
+| Tumor-aware deformable augmentation (paper Sec. 3.3) | `docker/nnunet_trainer/nnUNetTrainer_deformAug_agressive.py`, applied in `notebooks/02_students/nnUnet_base_1fold_ssl_deform_aug_agressive.ipynb` (submitted model) |
 | Teacher: GroupNorm + axial attention + Hausdorff loss, region-based, 5-fold (Sec. 3.1) | `notebooks/01_teacher/Modified_nnUNet_submission.ipynb` |
 | Pseudo-label generation + confidence ranking (Sec. 3.2) | `notebooks/01_teacher/Modified_nnUNet_pseudolabel_generator.ipynb` |
 | Inference entrypoint used for the submission | `docker/run_model.py` |
@@ -56,20 +57,6 @@ The two augmentation notebooks embed the trainer source inline (they write it in
 same augmentation code that was trained with.
 
 ## Experiments → paper tables
-
-### Table 3 — main ablation
-
-All four students share the same setup (Large Residual Encoder, patch 160×192×160,
-batch 3, 1000 epochs, patient-level **95%/5%** split) and differ **only** in whether
-pseudo-labels and/or the tumor-aware augmentation are used.
-
-| Paper row | Notebook | What it does | Scores |
-|---|---|---|---|
-| Teacher — labeled data only | `01_teacher/Modified_nnUNet_submission.ipynb` | Modified nnU-Net teacher, 5-fold ensemble, 250 epochs (DS999) | `results/teacher.csv` |
-| Student — labeled data only | `02_students/nnUnet_base_1fold_supervised_less_val.ipynb` | Baseline: labeled data, standard trainer, no augmentation (DS952) | `results/student_1_labeled_only.csv` |
-| Student — w/ pseudo-labels | `02_students/nnUnet_base_1fold_ssl_75_less_val.ipynb` | Self-training: labeled + top-75% pseudo-labels (DS960) | `results/student_2_pseudo75.csv` |
-| Student — w/ tumor-aware aug. | `02_students/nnUnet_base_1fold_labeled_deform_aug_agressive.ipynb` | Augmentation **without** pseudo-labels — isolates its effect (DS961) | `results/student_3_labeled_aug.csv` |
-| **Student (submitted)** — pseudo-labels + aug. | `02_students/nnUnet_base_1fold_ssl_deform_aug_agressive.ipynb` | Full method: top-75% pseudo-labels + tumor-aware augmentation (DS959) | `results/student_4_submitted.csv` |
 
 ### Table 1 — pseudo-label retention study
 
@@ -90,10 +77,31 @@ pseudo-labels and differ only in the split.
 predicted volumes per unlabeled case — the ranking used to select the top 75%
 (threshold ≈ 0.9722, 803 of 1,071 non-empty cases).
 
+### Table 2 — augmentation parameters
+
+The nine parameters of the tumor-aware deformable augmentation are the `_CFG` dictionary
+at the top of `docker/nnunet_trainer/nnUNetTrainer_deformAug_agressive.py`: application
+probability, minimum tumor size, elastic field smoothness and maximum displacement,
+scale range, dilation iterations, halo smoothing, ROI margin and edge-fade width.
+
+### Table 3 — main ablation
+
+All four students share the same setup (Large Residual Encoder, patch 160×192×160,
+batch 3, 1000 epochs, patient-level **95%/5%** split) and differ **only** in whether
+pseudo-labels and/or the tumor-aware augmentation are used.
+
+| Paper row | Notebook | What it does | Scores |
+|---|---|---|---|
+| Teacher — labeled data only | `01_teacher/Modified_nnUNet_submission.ipynb` | Modified nnU-Net teacher, 5-fold ensemble, 250 epochs (DS999) | `results/teacher.csv` |
+| Student — labeled data only | `02_students/nnUnet_base_1fold_supervised_less_val.ipynb` | Baseline: labeled data, standard trainer, no augmentation (DS952) | `results/student_1_labeled_only.csv` |
+| Student — w/ pseudo-labels | `02_students/nnUnet_base_1fold_ssl_75_less_val.ipynb` | Self-training: labeled + top-75% pseudo-labels (DS960) | `results/student_2_pseudo75.csv` |
+| Student — w/ tumor-aware aug. | `02_students/nnUnet_base_1fold_labeled_deform_aug_agressive.ipynb` | Augmentation **without** pseudo-labels — isolates its effect (DS961) | `results/student_3_labeled_aug.csv` |
+| **Student (submitted)** — pseudo-labels + aug. | `02_students/nnUnet_base_1fold_ssl_deform_aug_agressive.ipynb` | Full method: top-75% pseudo-labels + tumor-aware augmentation (DS959) | `results/student_4_submitted.csv` |
+
 ## Configurations
 
 `configs/` holds the files nnU-Net actually resolved during training. Every run has one
-**tag**, used verbatim as the filename in `configs/plans/`, `configs/datasets/`,
+**tag**, used as the filename stem in `configs/plans/`, `configs/datasets/`,
 `configs/splits/` and `results/`:
 
 | Tag | nnU-Net dataset | Notebook | Trainer |
@@ -111,15 +119,12 @@ predicted volumes per unlabeled case — the ranking used to select the top 75%
 The `dataset_name` field inside each `configs/plans/<tag>.json` matches the second column,
 so any file can be traced back to the run that produced it.
 
-| | Planner | Patch | Batch | Epochs | Loss | Labels |
-|---|---|---|---|---|---|---|
-| Teacher | `nnUNetPlannerResEncL` | 128×128×128 (fixed) | 5 | 250 | Dice + BCE (region-based) + Hausdorff | regions: WT `[1,2,3]`, TC `[1,3]`, ET `[3]` |
-| Students (all 8) | `nnUNetPlannerResEncL` | 160×192×160 (auto) | 3 | 1000 | Dice + CE | NCR/NET `1`, ED `2`, ET `3` |
-
-Both use the `nnUNetResEncUNetLPlans` (Large Residual Encoder) 3D full-resolution
+Every run uses the `nnUNetResEncUNetLPlans` (Large Residual Encoder) 3D full-resolution
 configuration, with 1.0 mm isotropic spacing and channel order `T1n, T1c, T2w, T2f`.
-The patch and batch sizes above are identical across all eight student runs — the
-planner resolved the same values for every dataset.
+The teacher uses a fixed 128×128×128 patch with batch 5 and region-based labels; the
+eight student runs all use the 160×192×160 patch with batch 3 that the planner resolved
+identically for every dataset. The exact values are in `configs/plans/` and
+`configs/datasets/`.
 
 Inference always uses `checkpoint_best.pth` (the epoch with the highest validation Dice),
 both in the notebooks and in the container.
@@ -180,14 +185,6 @@ See `docker/README.md` for details.
 Each CSV in `results/` is the per-case output returned by the challenge platform for one
 submission on the official validation set. Columns are `global_dsc_*`, `global_nsd_*` and
 `global_hd95_*` for each region (`wt`, `tc`, `et`), plus lesion-wise counts.
-
-Each file has **453 rows: 450 cases followed by three summary rows** (`mean`, `std`,
-`median`). The values reported in the paper are read from the `mean` and `std` rows — the
-summary rows must be excluded when recomputing anything from the per-case values.
-
-The official validation set has **451** cases, but the platform returns scores for **450**:
-`BraTS-GoAT-02845` is absent from every submission's CSV, although its input folder
-contains all four modalities and a prediction was submitted for it.
 
 | Result file | Produced by | Paper reference |
 |---|---|---|
