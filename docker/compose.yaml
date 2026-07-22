@@ -1,0 +1,20 @@
+# Build / test the BraTS-GoAT submission locally.
+#   cp .env.example .env    # then edit values
+#   docker compose build
+#   docker compose run --rm model     # runs against INPUT_DIR, writes OUTPUT_DIR
+services:
+  model:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    image: ${IMAGE}
+    network_mode: none          # mimics the zero-network evaluation environment
+    gpus: all                   # A10G (24 GB); requires the NVIDIA Container Toolkit
+    volumes:
+      - ${INPUT_DIR}:/input:ro
+      - ${OUTPUT_DIR}:/output:rw
+    mem_limit: ${MEMORY_LIMIT:-48g}
+    shm_size: ${SHM_SIZE:-16g}
+    restart: "no"

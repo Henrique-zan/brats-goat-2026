@@ -1,0 +1,7 @@
+# Torch + CUDA come from the base image (pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime).
+# nnunetv2 pulls its own deps (scipy, batchgeneratorsv2, nibabel, SimpleITK,
+# dynamic_network_architectures, acvl_utils, ...).
+#
+# Pinned to the exact version used for training (see ../configs/environment.txt:
+# nnunetv2 2.6.4, torch 2.5.1), so the checkpoint loads correctly.
+nnunetv2==2.6.4

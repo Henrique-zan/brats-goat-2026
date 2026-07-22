@@ -1,0 +1,36 @@
+# --- data & weights (NEVER commit: huge / redistribution-restricted) ---
+*.nii
+*.nii.gz
+*.pth
+*.npz
+*.npy
+docker/model/**
+!docker/model/README.md
+MICCAI2024-*/
+Validation*/
+data/
+
+# --- local run artifacts ---
+docker/results/
+docker/results_smoke/
+docker/smoke_input/
+output/
+predictions/
+nnUNet_raw/
+nnUNet_preprocessed/
+nnUNet_results/
+
+# --- env & secrets ---
+.env
+*.token
+
+# --- python / jupyter ---
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# --- os ---
+.DS_Store
+Thumbs.db

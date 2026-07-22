@@ -1,0 +1,20 @@
+# Keep the build context small and the image lean.
+
+# Runtime-mounted input (6.5 GB) and local outputs -- must NOT go into the image.
+MICCAI2024-BraTS-GoAT-ValidationData/
+smoke_input/
+results/
+output/
+.env
+
+# Model: keep ONLY plans.json, dataset.json and fold_0/checkpoint_best.pth.
+**/checkpoint_final.pth
+**/fold_0/validation/
+**/*.png
+**/debug.json
+**/training_log_*.txt
+
+# misc
+**/__pycache__/
+*.pyc
+.git/

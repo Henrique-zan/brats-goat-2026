@@ -1,0 +1,16 @@
+{
+  "channel_names": {
+    "0": "T1n",
+    "1": "T1c",
+    "2": "T2w",
+    "3": "T2f"
+  },
+  "labels": {
+    "background": 0,
+    "NCR/NET": 1,
+    "ED": 2,
+    "ET": 3
+  },
+  "numTraining": 1887,
+  "file_ending": ".nii.gz"
+}
