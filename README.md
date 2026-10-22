@@ -1,5 +1,11 @@
 # Generalizable Brain Tumor Segmentation with Self-Training and Tumor-Aware Deformations
 
+This repository contains the dataset information and experiments associated with our MICCAI 2026 paper:
+ 
+* **Generalizable Brain Tumor Segmentation with Self-Training and Tumor-Aware Deformations**
+
+---
+
 Code and experiments for our submission to the **Generalizability Across Tumors
 (BraTS-GoAT)** task of the **BraTS 2026 Challenge**.
 
@@ -198,3 +204,26 @@ submission on the official validation set. Columns are `global_dsc_*`, `global_n
 | `retention_75.csv` | `notebooks/03_retention_sweep/nnUnet_base_1fold_ssl_75.ipynb` | Table 1 — 75% retention (selected) |
 | `retention_100.csv` | `notebooks/03_retention_sweep/nnUnet_base_1fold_ssl_100.ipynb` | Table 1 — 100% retention |
 | `pseudolabel_confidence.csv` | `notebooks/01_teacher/Modified_nnUNet_pseudolabel_generator.ipynb` | Sec. 3.2 — confidence ranking used to select the top 75% |
+
+## Citation
+ 
+If you use our code or find our work useful in your research, please cite our paper:
+ 
+H. Z. Grande, J. H. Alves, R. Laroca, A. G. Hochuli, "Generalizable Brain Tumor Segmentation with Self-Training and Tumor-Aware Deformations," in Medical Image Computing and Computer Assisted Intervention (MICCAI) Workshops and Challenges, LNCS 17254, 2026.
+ 
+```bibtex
+@InProceedings{ZanHen_Generalizable_MICCAISAT2026,
+        author = { Zan Grande, Henrique AND Alves, Jeovane Honorio AND Laroca, Rayson AND Hochuli, Andre Gustavo},
+        title = { { Generalizable Brain Tumor Segmentation with Self-Training and Tumor-Aware Deformations } },
+        booktitle = {Medical Image Computing and Computer Assisted Intervention -- MICCAI 2026 Workshops and Challenges},
+        year = {2026},
+        publisher = {Springer Nature Switzerland},
+        volume = {LNCS 17254},
+        month = {pending},
+        page = {pending}
+}
+```
+ 
+## Contact
+ 
+Please contact Henrique Zan Grande (henrique.zgrande@ppgia.pucpr.br) with questions or comments.
