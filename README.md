@@ -1,6 +1,6 @@
 # Generalizable Brain Tumor Segmentation with Self-Training and Tumor-Aware Deformations
 
-This repository contains the dataset information and experiments associated with our MICCAI 2026 paper:
+This repository contains the general information and experiments associated with our MICCAI 2026 paper:
  
 * **Generalizable Brain Tumor Segmentation with Self-Training and Tumor-Aware Deformations**
 
